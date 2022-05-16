@@ -65,7 +65,7 @@ botExecuteCommand url token botData =
                         case command of
                         "say_hello" -> botSayHello url token botData >>
                                        writeLog (command ++ " executed")
-                        "help" -> botSayCommands url token botData ((head . words) <$> comList) >>
+                        "help" -> botSayCommands url token botData comList >>
                                           writeLog (command ++ " executed")
                         _ -> botSender url 
                                         token 
