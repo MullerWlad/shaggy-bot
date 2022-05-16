@@ -26,10 +26,13 @@ import Functions.Global (
     botSender,
     writeLog )
 
+-- helper of bot commands
 botSayCommands :: String -> String -> OKThen -> [String] -> IO ()
 botSayCommands url token botData list = mapM_ (botSender url token chatID) list
     where chatID = chatId $ chat $ message $ last $ result botData
 
+
+-- to order say hello
 botSayHello :: String -> String -> OKThen -> IO ()
 botSayHello url token botData =
     let name = fromUsername $ from $ message $ last $ result botData

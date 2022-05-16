@@ -1,3 +1,12 @@
 commands:
-- say_hello
-- help
+- say_hello - 0 args, shaggy says hello
+- help - 0 args, returns list of commands
+- send_to - 2 args, 1 - username, 2 - message, sends message to user
+- logs - 1 arg, 1 - bot pass, returns logs
+- my_tasks - 1 arg, 1 - project name, returns my tasks in project
+- my_projects - 0 args, returns project
+- project_team - 1 arg, 1 - project name, returns team of project
+- close_task - 2 args, 1 - project name, 2 - task id, closes task
+- close_project - 1 arg, 1 - project name, closes project
+- project_init - ? inits project in some directory
+- task_init - ? inits task in some directory

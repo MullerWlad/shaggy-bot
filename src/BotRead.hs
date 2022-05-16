@@ -1,6 +1,8 @@
 module BotRead (
     botMessage ) where
 
+
+-- cool writer
 botMessage :: Show a => a -> IO ()
 botMessage message =
     putStrLn "" >>

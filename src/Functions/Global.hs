@@ -16,6 +16,7 @@ import Data.DateTime (
     addSeconds )
 
 
+-- message bot sender
 botSender :: String -> String -> Integer -> String -> IO ()
 botSender url key chat message =
     HTTPS.parseRequest (url ++ key ++ "/sendMessage?chat_id=" ++ 
@@ -23,6 +24,7 @@ botSender url key chat message =
     HTTPS.httpLBS >>= botMessage
 
 
+-- log writer
 writeLog :: String -> IO ()
 writeLog log =
     getCurrentTime >>= (return . addSeconds 10800) >>= \timeOpen ->

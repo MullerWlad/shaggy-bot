@@ -22,7 +22,8 @@ import qualified Data.ByteString.Lazy.Char8 as L8 (
     putStrLn )
 
 import qualified Data.Yaml as Y (
-    decode )
+    decode,
+    encodeFile )
 
 import qualified Data.Aeson as JSON (
     FromJSON (..),
@@ -48,9 +49,49 @@ import BotTypes (
     MessageInfo (..),
     From (..),
     Chat (..),
-    Entities (..) )
+    Entities (..),
+    Sys (..) )
 
 
+-- use only if code needs to write update in log
+extraCherry :: String -> String -> IO ()
+extraCherry url token =
+    writeLog "extra cherry execute" >>
+    BS.readFile "./src/system.yaml" >>= \byte ->
+    let parsed = Y.decode byte :: Maybe Sys
+    in case parsed of 
+    Nothing -> botMessage "Zzzz..." >>
+                writeLog "extra cherry rejected, bot sleeps"
+    Just (Sys update) ->
+        HTTPS.parseRequest (url ++ token ++ "/getUpdates?offset=" ++ (show $ succ update)) >>=
+        HTTPS.httpLBS >>= \req ->
+        return () >>
+        writeLog "extra cherry well executed"
+
+
+-- use only if code needs to write update in log
+succUpId :: String -> String -> IO ()
+succUpId url token =
+    writeLog "succ update id execute" >>
+    BS.readFile "./src/system.yaml" >>= \byte ->
+    let parsed = Y.decode byte :: Maybe Sys
+    in case parsed of 
+    Nothing -> botMessage "Zzzz..." >>
+                writeLog "succ update id rejected, bot sleeps"
+    Just (Sys update) ->
+        writeLog "succ update id well executed" >>
+        Y.encodeFile "./src/system.yaml" (Sys $ succ update)
+
+
+-- to open last update
+lastUpdate :: String -> String -> IO ()
+lastUpdate url token =
+    HTTPS.parseRequest (url ++ token ++ "/getUpdates?offset=-1") >>=
+    HTTPS.httpLBS >>= \req ->
+    return ()
+
+
+-- endpoint of application
 endPoint :: IO ()
 endPoint = 
     writeLog "open bot, reading config.yaml" >>
@@ -60,13 +101,10 @@ endPoint =
     let parsed = Y.decode byte :: Maybe Cred
     in case parsed of
     Nothing -> 
-        writeLog "could not parse config.yaml" >>
-        botMessage "Could not parse config.yaml"
+        botMessage "Could not parse config.yaml" >>
+        endPoint
     (Just (Cred url_api token timeout)) -> 
-        writeLog ("stored config: " ++
-                  url_api ++ " " ++
-                  show token ++ " " ++
-                  show timeout) >>
+        writeLog "config.yaml is well red" >>
         writeLog "fetching bot data" >>
         botMessage "Well red config.yaml! Start reading my own data..." >>
         HTTPS.parseRequest (url_api ++ token ++ "/getUpdates") >>=
@@ -76,34 +114,28 @@ endPoint =
             rejust = \(Just content) -> content
         in case botDataMaybe of
         Nothing ->
-            writeLog "empty bot data" >>
             botMessage "My data contains nothing!" >>
+            lastUpdate url_api token >>
             threadDelay timeout >>
             endPoint
         justBotData ->
             (return $ rejust justBotData) >>= \botData ->
-            case result botData of
-            [] -> botMessage "No updates" >> 
-                    writeLog "bot data responsed, empty updates" >>
-                    roundInit parsed botData
-            _ -> botMessage ("Oh, hello, " ++ 
-                    (fromFirst_name $ from $ message $ head $ result botData) ++ 
-                    " " ++
-                    (fromLast_name $ from $ message $ head $ result botData) ++ 
-                    ", my data well red, I'm ready to work with you! Listening...") >>
-                    writeLog (show ((\res -> show (("update: " ++ (show $ update_id res)), 
-                                        ("message: " ++ (show $ message_id $ message res)), 
-                                        ("text: " ++ (show $ text $ message res)),
-                                        ("from: " ++ (show $ fromUsername $ from $ message res) ++ " " ++ (show $ fromIs_bot $ from $ message res)),
-                                        ("chat: " ++ (show $ chatId $ chat $ message res) ++ " " ++ (show $ chatType $ chat $ message res)))) <$> result botData)) >>
-                    roundInit parsed botData
+            (case result botData of
+                [] -> botMessage "No updates" >> 
+                        writeLog "empty updates in endpoint" >>
+                        roundInit parsed botData
+                _ -> botMessage "Ok, listening api now..." >>
+                        writeLog "updates are not empty in endpoint") >>
+                        roundInit parsed botData
+            
 
-
+-- half cycle
 roundInit :: Maybe Cred -> OKThen ->  IO ()
 roundInit parsed botData =
     generalRoundPol parsed botData botExecuteCommand
 
 
+-- general bot manager
 generalRoundPol :: Maybe Cred -> OKThen -> (String -> String -> OKThen -> IO ()) -> IO ()
 generalRoundPol parsed@(Just (Cred url_api token timeout)) oldUp toDo =
     HTTPS.parseRequest (url_api ++ token ++ "/getUpdates") >>=
@@ -114,17 +146,20 @@ generalRoundPol parsed@(Just (Cred url_api token timeout)) oldUp toDo =
     in case botDataMaybe of
     Nothing ->
         putStrLn "My data contains nothing in RoundPol, Try reading config.yaml again..." >>
+        lastUpdate url_api token >>
         threadDelay timeout >>
         generalRoundPol parsed oldUp toDo
     justBotData -> case oldUp == rejust justBotData of
                     True -> threadDelay timeout >>
                             generalRoundPol parsed oldUp toDo
                     False -> botMessage "New update!" >>
-                             writeLog (show ((\res -> show (("update: " ++ (show $ update_id res)), 
-                                        ("message: " ++ (show $ message_id $ message res)), 
-                                        ("text: " ++ (show $ text $ message res)),
-                                        ("from: " ++ (show $ fromUsername $ from $ message res) ++ " " ++ (show $ fromIs_bot $ from $ message res)),
-                                        ("chat: " ++ (show $ chatId $ chat $ message res) ++ " " ++ (show $ chatType $ chat $ message res)))) <$> (result $ rejust justBotData))) >>
                              (toDo url_api token $ rejust justBotData) >>
-                             threadDelay timeout >>
-                             generalRoundPol parsed (rejust justBotData) toDo
+                             case result $ rejust justBotData of
+                                [] -> botMessage "No updates" >> 
+                                        writeLog "empty updates in general round pol" >>
+                                        threadDelay timeout >>
+                                        generalRoundPol parsed (rejust justBotData) toDo
+                                _ -> botMessage "New update" >>
+                                        writeLog "updates are not empty in general round pol " >>
+                                        threadDelay timeout >>
+                                        generalRoundPol parsed (rejust justBotData) toDo

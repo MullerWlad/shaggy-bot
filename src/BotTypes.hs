@@ -7,10 +7,12 @@ module BotTypes (
     From (..),
     Chat (..),
     Entities (..),
-    Commands (..) ) where
+    Commands (..),
+    Sys (..) ) where
 
 import qualified Data.Aeson as JSON (
     FromJSON (..),
+    ToJSON (..),
     genericParseJSON,
     Options (..),
     defaultOptions,
@@ -24,6 +26,12 @@ import Data.Char (
 
 import Control.Category ( (>>>) )
 
+
+newtype Sys = Sys {
+    lastUp :: Integer
+} deriving (Show, Eq, Generic)
+instance JSON.FromJSON Sys
+instance JSON.ToJSON Sys
 
 data Cred = Cred { 
     url_api :: String,

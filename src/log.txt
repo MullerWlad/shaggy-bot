@@ -1,0 +1,30 @@
+2022-05-16 02:36:01 UTC: open bot, reading config.yaml
+2022-05-16 02:36:01 UTC: config.yaml is well red
+2022-05-16 02:36:01 UTC: fetching bot data
+2022-05-16 02:36:01 UTC: updates are not empty in endpoint
+2022-05-16 02:36:09 UTC: vladislavMelnik1 chooses help
+2022-05-16 02:36:09 UTC: help executed
+2022-05-16 02:36:09 UTC: updates are not empty in general round pol 
+2022-05-16 02:36:17 UTC: vladislavMelnik1 chooses logs
+2022-05-16 02:36:17 UTC: logs rejected
+2022-05-16 02:36:17 UTC: updates are not empty in general round pol 
+2022-05-16 02:36:31 UTC: vladislavMelnik1 chooses h
+2022-05-16 02:36:31 UTC: h rejected
+2022-05-16 02:36:31 UTC: updates are not empty in general round pol 
+2022-05-16 02:54:26 UTC: open bot, reading config.yaml
+2022-05-16 02:54:26 UTC: config.yaml is well red
+2022-05-16 02:54:26 UTC: fetching bot data
+2022-05-16 02:54:26 UTC: updates are not empty in endpoint
+2022-05-16 02:54:34 UTC: vladislavMelnik1 chooses help
+2022-05-16 02:54:34 UTC: help rejected
+2022-05-16 02:54:34 UTC: updates are not empty in general round pol 
+2022-05-16 02:59:43 UTC: open bot, reading config.yaml
+2022-05-16 02:59:43 UTC: config.yaml is well red
+2022-05-16 02:59:43 UTC: fetching bot data
+2022-05-16 02:59:44 UTC: updates are not empty in endpoint
+2022-05-16 02:59:53 UTC: vladislavMelnik1 chooses help
+2022-05-16 02:59:54 UTC: help executed
+2022-05-16 02:59:54 UTC: updates are not empty in general round pol 
+2022-05-16 03:00:11 UTC: vladislavMelnik1 chooses say_hello
+2022-05-16 03:00:11 UTC: say_hello executed
+2022-05-16 03:00:11 UTC: updates are not empty in general round pol 

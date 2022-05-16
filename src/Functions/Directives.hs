@@ -32,6 +32,7 @@ import Functions.Commands (
 
 
 -- command structure: shaggy_command
+-- command executer
 botExecuteCommand :: String -> String -> OKThen -> IO ()
 botExecuteCommand url token botData =
     getCurrentTime >>= (return . addSeconds 10800) >>= \time ->
@@ -59,17 +60,17 @@ botExecuteCommand url token botData =
                                       (chatId $ chat $ message $ last $ result botData) 
                                       "no commands, my lord"
                  (Just (Commands comList)) ->
-                     if command `elem` comList
+                     if command `elem` ((head . words) <$> comList)
                      then 
                         case command of
                         "say_hello" -> botSayHello url token botData >>
                                        writeLog (command ++ " executed")
-                        "help" -> botSayCommands url token botData comList >>
+                        "help" -> botSayCommands url token botData ((head . words) <$> comList) >>
                                           writeLog (command ++ " executed")
                         _ -> botSender url 
                                         token 
                                         (chatId $ chat $ message $ last $ result botData) 
-                                        "undefined command, my lord" >>
+                                        "command is not finished yet, my lord" >>
                              writeLog (command ++ " rejected")
                      else writeLog (command ++ " rejected") >>
                           botSender url 
